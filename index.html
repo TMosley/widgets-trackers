@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Skincare Routine</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #1a1a1a; padding: 12px; font-size: 15px; }
+  .tab-bar { display: flex; gap: 6px; flex-wrap: wrap; padding-bottom: 10px; position: sticky; top: 0; background: #fff; z-index: 10; border-bottom: 1px solid #e8e8e8; margin-bottom: 4px; }
+  .tab { padding: 6px 12px; border-radius: 20px; border: 1px solid #ddd; font-size: 12px; cursor: pointer; background: #fff; color: #666; transition: all 0.15s; }
+  .tab.active { background: #f0f0f0; color: #111; font-weight: 600; border-color: #aaa; }
+  .tab:hover { background: #f5f5f5; }
+  .section { display: none; padding: 12px 0; }
+  .section.active { display: block; }
+  .step { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+  .step:last-child { border-bottom: none; }
+  .step-num { width: 26px; height: 26px; border-radius: 50%; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #888; flex-shrink: 0; margin-top: 2px; }
+  .step-content { flex: 1; min-width: 0; }
+  .step-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .step-product { font-size: 14px; font-weight: 600; color: #111; margin-bottom: 3px; line-height: 1.3; }
+  .step-benefit { font-size: 12px; color: #555; line-height: 1.5; }
+  .warn { font-size: 11px; color: #c0392b; margin-top: 5px; line-height: 1.4; background: #fdf3f3; padding: 6px 8px; border-radius: 6px; border-left: 3px solid #e74c3c; }
+  .note { font-size: 11px; color: #777; margin-top: 4px; font-style: italic; }
+  .section-title { font-size: 10px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.07em; margin: 20px 0 10px; }
+  .section-title:first-child { margin-top: 4px; }
+  .optional-tag { font-size: 10px; color: #aaa; border: 1px solid #e0e0e0; border-radius: 4px; padding: 1px 5px; margin-left: 5px; font-style: normal; }
+  .or-divider { font-size: 10px; color: #bbb; font-style: italic; margin: 3px 0; }
+  .moist-block { background: #f9f9f9; border-radius: 8px; padding: 9px 11px; margin-bottom: 6px; border: 1px solid #efefef; }
+  .moist-option { font-size: 13px; font-weight: 600; color: #111; margin-bottom: 2px; }
+  .moist-desc { font-size: 11px; color: #777; line-height: 1.4; }
+  .tbd-block { border: 1.5px dashed #ddd; border-radius: 8px; padding: 10px 12px; background: #fafafa; }
+  .tbd-label { font-size: 13px; font-weight: 600; color: #bbb; font-style: italic; margin-bottom: 4px; }
+  .tbd-options { font-size: 11px; color: #888; line-height: 1.6; }
+  .day-card { background: #f9f9f9; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; border: 1px solid #efefef; }
+  .day-name { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 4px; }
+  .day-pm { font-size: 12px; color: #555; line-height: 1.5; }
+  .badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+  .badge-spa { background: #e8f8f0; color: #1a8a4a; }
+  .badge-glyco { background: #fff8e8; color: #a06800; }
+  .badge-std { background: #e8f0fb; color: #2255aa; }
+  .week-card { border: 1px solid #efefef; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .week-num { font-size: 10px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+  .week-title { font-size: 14px; font-weight: 700; color: #111; margin-bottom: 8px; }
+  .week-change { font-size: 12px; color: #555; line-height: 1.7; }
+  .week-change ul { padding-left: 16px; }
+  .week-change li { margin-bottom: 2px; }
+  .week-watch { font-size: 11px; color: #a06800; margin-top: 8px; background: #fff8e8; padding: 6px 8px; border-radius: 6px; border-left: 3px solid #f0c040; }
+  .product-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+  .product-row:last-child { border-bottom: none; }
+  .prod-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .dot-active { background: #1a9e6a; }
+  .dot-travel { background: #3388dd; }
+  .dot-retire { background: #e03030; }
+  .dot-tbd { background: #ccc; }
+  .prod-name { font-size: 13px; font-weight: 600; color: #111; line-height: 1.3; }
+  .prod-role { font-size: 11px; color: #777; margin-top: 2px; line-height: 1.4; }
+  .legend { display: flex; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; padding: 10px 12px; background: #f9f9f9; border-radius: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #666; font-weight: 500; }
+  .master-warn-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .master-warn-table tr { border-bottom: 1px solid #f0f0f0; }
+  .master-warn-table tr:last-child { border-bottom: none; }
+  .master-warn-table td { padding: 9px 8px; vertical-align: top; line-height: 1.5; }
+  .master-warn-table td:first-child { font-weight: 600; color: #c0392b; white-space: nowrap; width: 38%; }
+  .master-warn-table td:last-child { color: #555; }
+  h1 { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 4px; padding-top: 4px; }
+  .subtitle { font-size: 12px; color: #aaa; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<h1>💆🏾 My Skincare Routine</h1>
+<p class="subtitle">Tap a tab to navigate · Last updated April 2026</p>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="show('am', this)">☀️ AM</div>
+  <div class="tab" onclick="show('pm', this)">🌙 PM</div>
+  <div class="tab" onclick="show('glyco', this)">🧪 Glycolic</div>
+  <div class="tab" onclick="show('spa', this)">🧖🏾 Spa</div>
+  <div class="tab" onclick="show('week', this)">📅 Week</div>
+  <div class="tab" onclick="show('trans', this)">🔄 Transition</div>
+  <div class="tab" onclick="show('products', this)">📦 Products</div>
+  <div class="tab" onclick="show('warnings', this)">⚠️ Warnings</div>
+</div>
+
+<!-- AM -->
+<div id="am" class="section active">
+  <div class="section-title">AM Routine — daily</div>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Pre-cleanse <span class="optional-tag">optional</span></div><div class="step-product">COSRX Niacinamide Cleansing Water</div><div class="step-benefit">Removes overnight residue · light niacinamide prep</div><div class="note">Pre-cleanse only — not a standalone cleanser</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Cleanser</div><div class="step-product">YTTP Kale Superfood Cleanser</div><div class="step-benefit">Daily cleanse · antioxidants · pH balance</div><div class="warn">⚠️ 30 seconds max</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Toner</div><div class="step-product">Good Molecules Niacinamide Brightening Toner</div><div class="step-benefit">Pore refinement · oil control · dark marks · even tone</div><div class="note">Dry skin · pat gently — never rub</div></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Prescription</div><div class="step-product">Clindamycin 1% Phosphate Lotion</div><div class="step-benefit">Acne · antibacterial · anti-inflammatory</div><div class="warn">⚠️ Fully dry skin · let absorb completely before next step</div></div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-label">Brightening Serum</div><div class="step-product">Topicals Faded Serum</div><div class="step-benefit">PIH · dark marks · even tone · TXA + arbutin + kojic + azelaic + niacinamide + licorice</div><div class="warn">⚠️ NEVER with AHAs, BHAs, or retinoids same session</div></div></div>
+  <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-label">Barrier Serum</div><div class="step-product">YTTP Superfood Skin Drip</div><div class="step-benefit">Barrier repair · hydration · ceramides · HA spheres · niacinamide 5% · peptides</div><div class="note">Apply before eye products and moisturizer</div></div></div>
+  <div class="step"><div class="step-num">7</div><div class="step-content"><div class="step-label">Eye Serum</div><div class="step-product">The Ordinary Caffeine 5% + EGCG</div><div class="step-benefit">Vascular dark circles · puffiness · allergy mornings</div><div class="warn">⚠️ Keep in fridge · ring finger only · tap gently — never rub or pull</div></div></div>
+  <div class="step"><div class="step-num">8</div><div class="step-content">
+    <div class="step-label">Moisturizer — testing in progress, pick one</div>
+    <div class="moist-block"><div class="moist-option">Belif True Cream Aqua Bomb</div><div class="moist-desc">Hydration · barrier seal · herbal antioxidants · lightweight gel-cream</div></div>
+    <div class="moist-block"><div class="moist-option">Byoma Moisturizing Gel-Cream</div><div class="moist-desc">Oil-free · niacinamide · ceramides · lighter texture</div></div>
+    <div class="moist-block"><div class="moist-option">Byoma Hydrating Milky Moisturizer</div><div class="moist-desc">Richer · ceramides · barrier repair · more occlusive</div></div>
+    <div class="note">Testing all three to determine AM/PM/seasonal assignments</div>
+  </div></div>
+  <div class="step"><div class="step-num">9</div><div class="step-content"><div class="step-label">SPF</div><div class="step-product">Innisfree Daily UV Defense Sunscreen</div><div class="step-benefit">UV protection · prevents PIH darkening · anti-aging defense</div><div class="warn">⚠️ Non-negotiable · apply generously · reapply every 2 hrs outdoors</div></div></div>
+  <div class="step"><div class="step-num">10</div><div class="step-content"><div class="step-label">Lip SPF</div><div class="step-product">Beach Bum SPF Lip Balm</div><div class="step-benefit">UV lip protection · prevents perioral PIH · counters tretinoin dryness</div><div class="note">Reapply after eating or drinking</div></div></div>
+  <div class="step"><div class="step-num">11</div><div class="step-content"><div class="step-label">Lip Treatment</div><div class="step-product">EADEM Le Chouchou or KraveBeauty Lip Barrier Relief</div><div class="step-benefit">Lip treatment · gloss · barrier repair · apply over lip SPF</div></div></div>
+</div>
+
+<!-- PM -->
+<div id="pm" class="section">
+  <div class="section-title">PM Routine — Mon · Tue · Thu · Fri · Sun</div>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Pre-cleanse <span class="optional-tag">optional</span></div><div class="step-product">COSRX Niacinamide Cleansing Water</div><div class="step-benefit">Removes SPF and surface buildup</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Cleanser</div><div class="step-product">YTTP Kale Superfood Cleanser</div><div class="or-divider">— or on sensitized / barrier-stressed nights —</div><div class="step-product">Round Lab 1025 Dokdo Cleanser</div><div class="step-benefit">Removes SPF · daily buildup · pollution</div><div class="note">Dokdo is mineral-rich and more restorative — use when skin feels stressed or reactive</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Toner</div><div class="step-product">Good Molecules Niacinamide Brightening Toner</div><div class="step-benefit">Pore refinement · oil control · barrier prep</div><div class="note">Pat gently on dry skin</div></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Booster</div><div class="step-product">VT Reedle Shot 100</div><div class="step-benefit">Texture · pores · dark marks · absorption boost</div><div class="warn">⚠️ Tingling = normal · burning = rinse off · no LED devices · skip on sensitized nights</div></div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-label">Anti-Aging Serum</div><div class="step-product">Clarins Double Serum Light Texture</div><div class="step-benefit">Firming · radiance · pore refinement · anti-aging · barrier support</div><div class="warn">⚠️ Mix both phases in palm first · dry skin only</div></div></div>
+  <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-label">Eye Serum</div><div class="step-product">The Ordinary Caffeine 5% + EGCG</div><div class="step-benefit">Vascular dark circles · puffiness</div><div class="note">Keep in fridge · ring finger · tap gently</div></div></div>
+  <div class="step"><div class="step-num">7</div><div class="step-content">
+    <div class="step-label">Moisturizer — testing in progress, pick one</div>
+    <div class="moist-block"><div class="moist-option">Belif True Cream Aqua Bomb</div><div class="moist-desc">Hydration · barrier seal · herbal antioxidants</div></div>
+    <div class="moist-block"><div class="moist-option">Byoma Moisturizing Gel-Cream</div><div class="moist-desc">Oil-free · niacinamide · ceramides</div></div>
+    <div class="moist-block"><div class="moist-option">Byoma Hydrating Milky Moisturizer</div><div class="moist-desc">Richer · ceramides · barrier repair</div></div>
+    <div class="note">All options also serve as tretinoin buffer</div>
+  </div></div>
+  <div class="step"><div class="step-num">8</div><div class="step-content"><div class="step-label">Prescription — applied OVER moisturizer</div><div class="step-product">Tretinoin 0.05% Cream</div><div class="step-benefit">Acne · cell turnover · PIH · texture · anti-aging</div><div class="warn">⚠️ Pea-sized amount · avoid eyelids, lip corners, nose sides · NEVER same night as glycolic toner</div></div></div>
+  <div class="step"><div class="step-num">9</div><div class="step-content"><div class="step-label">Lip</div><div class="step-product">Naturium Overnight Lip Treatment</div><div class="step-benefit">Lip barrier · peptides · ceramides · counters tretinoin dryness</div><div class="note">Apply after tretinoin</div></div></div>
+</div>
+
+<!-- Glycolic -->
+<div id="glyco" class="section">
+  <div class="section-title">Glycolic Night — Wednesday only · skip tretinoin entirely</div>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Cleanser</div><div class="step-product">YTTP Kale Superfood Cleanser</div><div class="or-divider">— or on sensitized nights —</div><div class="step-product">Round Lab 1025 Dokdo Cleanser</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Exfoliating Toner</div><div class="step-product">The Ordinary Glycolic Acid 7%</div><div class="step-benefit">Texture · surface exfoliation · brightness · cell turnover</div><div class="warn">⚠️ NEVER same night as tretinoin or Topicals Faded · cotton pad only · skip eye area · SPF next morning is critical · start 1x/week</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Anti-Aging Serum</div><div class="step-product">Clarins Double Serum Light Texture</div><div class="step-benefit">Firming · anti-aging · radiance</div><div class="note">Mix phases in palm first</div></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Eye Serum</div><div class="step-product">The Ordinary Caffeine 5% + EGCG</div><div class="step-benefit">Vascular dark circles · puffiness</div><div class="note">Ring finger · pat gently</div></div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-content">
+    <div class="step-label">Moisturizer — testing in progress, pick one</div>
+    <div class="moist-block"><div class="moist-option">Belif True Cream Aqua Bomb</div><div class="moist-desc">Hydration · barrier seal</div></div>
+    <div class="moist-block"><div class="moist-option">Byoma Moisturizing Gel-Cream</div><div class="moist-desc">Oil-free · ceramides</div></div>
+    <div class="moist-block"><div class="moist-option">Byoma Hydrating Milky Moisturizer</div><div class="moist-desc">Richer · barrier repair</div></div>
+  </div></div>
+  <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-label">Lip</div><div class="step-product">Naturium Overnight Lip Treatment</div><div class="step-benefit">Lip barrier · ceramides · moisture</div></div></div>
+</div>
+
+<!-- Spa -->
+<div id="spa" class="section">
+  <div class="section-title">Spa Day — Saturday · no prescriptions</div>
+  <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-label">Pre-cleanse</div><div class="step-product">COSRX Niacinamide Cleansing Water</div><div class="step-benefit">Removes surface buildup before exfoliation</div></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-label">Exfoliating Cleanse</div><div class="step-product">Good Molecules Pineapple Exfoliating Powder</div><div class="step-benefit">Texture · enzyme exfoliation · brightening</div><div class="warn">⚠️ No Reedle 300, glycolic, or Topicals Faded same day · more water = gentler · circular motions</div></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-label">Cleanser</div><div class="step-product">YTTP Kale Superfood Cleanser</div><div class="or-divider">— or for a gentler soothing finish —</div><div class="step-product">Round Lab 1025 Dokdo Cleanser</div><div class="step-benefit">Clean base after powder · 20–30 seconds only</div></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-label">Toner</div><div class="step-product">Good Molecules Niacinamide Toner</div><div class="step-benefit">Pore refinement · skin prep · oil control</div></div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-label">Booster — 100 ONLY</div><div class="step-product">VT Reedle Shot 100</div><div class="step-benefit">Absorption boost · texture · pores</div><div class="warn">⚠️ Never use 300 on spa day</div></div></div>
+  <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-label">Barrier Serum</div><div class="step-product">YTTP Superfood Skin Drip</div><div class="step-benefit">Barrier repair · hydration · glow · ceramides</div></div></div>
+  <div class="step"><div class="step-num">7</div><div class="step-content"><div class="step-label">Anti-Aging Serum</div><div class="step-product">Clarins Double Serum Light</div><div class="step-benefit">Firming · anti-aging · radiance</div><div class="note">Mix phases in palm first</div></div></div>
+  <div class="step"><div class="step-num">8</div><div class="step-content"><div class="step-label">Eye Serum</div><div class="step-product">The Ordinary Caffeine 5% + EGCG</div><div class="step-benefit">Vascular dark circles · puffiness</div><div class="note">Keep in fridge · ring finger · tap gently</div></div></div>
+  <div class="step"><div class="step-num">9</div><div class="step-content">
+    <div class="step-label">Eye Patches — TBD</div>
+    <div class="tbd-block">
+      <div class="tbd-label">To be decided</div>
+      <div class="tbd-options">Options: Good Molecules Caffeine Eye Patches or Medicube PDRN Caffeine/Collagen Eye Patches<br>Deciding based on results with The Ordinary Caffeine serum<br><br>Keep in fridge · 10–15 min · massage in remaining serum after</div>
+    </div>
+  </div></div>
+  <div class="step"><div class="step-num">10</div><div class="step-content"><div class="step-label">Mask</div><div class="step-product">Hydrating Sheet Mask of Choice</div><div class="step-benefit">Deep hydration · soothing · barrier recovery</div><div class="warn">⚠️ 15–20 min max · do not sleep in it</div></div></div>
+  <div class="step"><div class="step-num">11</div><div class="step-content">
+    <div class="step-label">Moisturizer — testing in progress, pick one</div>
+    <div class="moist-block"><div class="moist-option">Belif True Cream Aqua Bomb</div><div class="moist-desc">Hydration · barrier seal</div></div>
+    <div class="moist-block"><div class="moist-option">Byoma Moisturizing Gel-Cream</div><div class="moist-desc">Oil-free · ceramides</div></div>
+    <div class="moist-block"><div class="moist-option">Byoma Hydrating Milky Moisturizer</div><div class="moist-desc">Richer · barrier repair · good if post-mask skin is sensitized</div></div>
+  </div></div>
+  <div class="step"><div class="step-num">12</div><div class="step-content"><div class="step-label">Lip</div><div class="step-product">Naturium Overnight Lip Treatment</div><div class="step-benefit">Lip barrier · ceramides · moisture</div></div></div>
+</div>
+
+<!-- Week -->
+<div id="week" class="section">
+  <div class="section-title">Weekly schedule at a glance</div>
+  <div class="day-card"><div class="day-name">Monday <span class="badge badge-std">Standard</span></div><div class="day-pm">PM: Reedle 100 + Tretinoin over moisturizer</div></div>
+  <div class="day-card"><div class="day-name">Tuesday <span class="badge badge-std">Standard</span></div><div class="day-pm">PM: Reedle 100 + Tretinoin over moisturizer</div></div>
+  <div class="day-card"><div class="day-name">Wednesday <span class="badge badge-glyco">Glycolic</span></div><div class="day-pm">PM: Glycolic 7% only — no Reedle, no Tretinoin</div></div>
+  <div class="day-card"><div class="day-name">Thursday <span class="badge badge-std">Standard</span></div><div class="day-pm">PM: Reedle 100 + Tretinoin over moisturizer</div></div>
+  <div class="day-card"><div class="day-name">Friday <span class="badge badge-std">Standard</span></div><div class="day-pm">PM: Reedle 100 + Tretinoin over moisturizer</div></div>
+  <div class="day-card"><div class="day-name">Saturday <span class="badge badge-spa">Spa Day</span></div><div class="day-pm">No prescriptions · Reedle 100 only · full spa routine</div></div>
+  <div class="day-card"><div class="day-name">Sunday <span class="badge badge-std">Standard</span></div><div class="day-pm">PM: Reedle 100 + Tretinoin over moisturizer</div></div>
+</div>
+
+<!-- Transition -->
+<div id="trans" class="section">
+  <div class="section-title">8-Week transition plan</div>
+  <div class="week-card"><div class="week-num">Week 1</div><div class="week-title">Moisturizer testing begins</div><div class="week-change"><ul><li>Begin testing Belif True Cream, Byoma Gel-Cream, Byoma Milky</li><li>Retire Belif Frozen Cream</li><li>Continue all other current products unchanged</li><li>9Wishes still in PM until empty</li></ul></div><div class="week-watch">👀 Watch: oiliness, dryness, or congestion from new moisturizers</div></div>
+  <div class="week-card"><div class="week-num">Week 2</div><div class="week-title">Toner + barrier serum swap</div><div class="week-change"><ul><li>Belif Milky Toner → ✈️ travel kit</li><li>Good Molecules Niacinamide Toner → AM + PM</li><li>HA Serum → ✈️ travel kit</li><li>YTTP Skin Drip → AM only first</li><li>Continue: 9Wishes · Azelaic Acid · Naturium · Reedle 300</li></ul></div><div class="week-watch">👀 Watch: congestion from Skin Drip — patch test jaw first</div></div>
+  <div class="week-card"><div class="week-num">Week 3</div><div class="week-title">Clarins in when Naturium finishes</div><div class="week-change"><ul><li>Naturium runs out → Clarins Double Serum PM</li><li>Continue: 9Wishes · Azelaic Acid · Reedle 300</li></ul></div><div class="week-watch">👀 Watch: seamless swap — same step, very low risk</div></div>
+  <div class="week-card"><div class="week-num">Week 4</div><div class="week-title">9Wishes finishes</div><div class="week-change"><ul><li>9Wishes runs out → YTTP Kale or Dokdo Cleanser PM only</li><li>Continue: Azelaic Acid · Reedle 300</li></ul></div><div class="week-watch">👀 Watch: low risk — simple cleanser consolidation</div></div>
+  <div class="week-card"><div class="week-num">Week 5</div><div class="week-title">Reedle 300 finishes + Topicals Faded arrives</div><div class="week-change"><ul><li>Reedle 300 runs out → Reedle 100 nightly</li><li>Topicals Faded arrives → Azelaic to ✈️ travel kit</li><li>Faded starts 3x/week AM — Mon · Wed · Fri</li></ul></div><div class="week-watch">👀 Watch: mild tingling = normal · burning = pull back to 2x/week</div></div>
+  <div class="week-card"><div class="week-num">Week 6</div><div class="week-title">Faded daily + eye products</div><div class="week-change"><ul><li>Topicals Faded → daily AM</li><li>The Ordinary Caffeine + EGCG → AM + PM</li></ul></div><div class="week-watch">👀 Watch: milia under eye — if occurs, use AM only</div></div>
+  <div class="week-card"><div class="week-num">Week 7</div><div class="week-title">Glycolic toner once</div><div class="week-change"><ul><li>Glycolic 7% → one Wednesday PM only</li><li>Skip tretinoin entirely that night</li><li>No Reedle Shot on glycolic nights</li></ul></div><div class="week-watch">👀 Watch: redness next day = wait another week before trying again</div></div>
+  <div class="week-card"><div class="week-num">Week 8</div><div class="week-title">Full routine locked in 🎉</div><div class="week-change"><ul><li>Second glycolic night if Week 7 went well</li><li>Spa day routine begins</li><li>Full routine completely established</li></ul></div></div>
+</div>
+
+<!-- Products -->
+<div id="products" class="section">
+  <div class="legend">
+    <div class="legend-item"><div class="prod-dot dot-active"></div>Active</div>
+    <div class="legend-item"><div class="prod-dot dot-tbd"></div>TBD</div>
+    <div class="legend-item"><div class="prod-dot dot-travel"></div>Travel</div>
+    <div class="legend-item"><div class="prod-dot dot-retire"></div>Retire</div>
+  </div>
+
+  <div class="section-title">Active products</div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">COSRX Low pH Niacinamide Cleansing Water</div><div class="prod-role">Pre-cleanse / micellar</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">YTTP Kale Superfood Cleanser</div><div class="prod-role">Daily cleanser — AM + PM standard</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Round Lab 1025 Dokdo Cleanser</div><div class="prod-role">PM alternate — sensitized nights + spa day</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Good Molecules Pineapple Exfoliating Powder</div><div class="prod-role">Spa day exfoliant</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Good Molecules Niacinamide Brightening Toner</div><div class="prod-role">AM + PM toner</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Clindamycin 1% Phosphate Lotion</div><div class="prod-role">AM prescription</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Topicals Faded Serum</div><div class="prod-role">AM brightening treatment</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">YTTP Superfood Skin Drip</div><div class="prod-role">AM barrier serum</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">The Ordinary Caffeine 5% + EGCG</div><div class="prod-role">AM + PM eye serum — keep in fridge</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Belif True Cream Aqua Bomb</div><div class="prod-role">Moisturizer — AM/PM assignment TBD, testing</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Byoma Moisturizing Gel-Cream</div><div class="prod-role">Moisturizer — AM/PM assignment TBD, testing</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Byoma Hydrating Milky Moisturizer</div><div class="prod-role">Moisturizer — AM/PM assignment TBD, testing</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Innisfree Daily UV Defense Sunscreen</div><div class="prod-role">AM SPF</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Beach Bum SPF Lip Balm</div><div class="prod-role">AM lip SPF</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">EADEM Le Chouchou / KraveBeauty Lip Barrier</div><div class="prod-role">AM lip treatment</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">VT Reedle Shot 100</div><div class="prod-role">PM booster — nightly + spa day</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Clarins Double Serum Light Texture</div><div class="prod-role">PM anti-aging serum</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Tretinoin 0.05% Cream</div><div class="prod-role">PM prescription — applied over moisturizer</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Naturium Overnight Lip Treatment</div><div class="prod-role">PM lip treatment</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">The Ordinary Glycolic Acid 7% Toner</div><div class="prod-role">PM exfoliating toner — Wednesday only</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-active"></div><div><div class="prod-name">Medicube PDRN 5% Volufiline Balm Stick</div><div class="prod-role">Eye + volume — arriving mid-May, evaluating</div></div></div>
+
+  <div class="section-title">TBD — decisions pending</div>
+  <div class="product-row"><div class="prod-dot dot-tbd"></div><div><div class="prod-name">Spa Day Eye Patches — TBD</div><div class="prod-role">Good Molecules Caffeine Eye Patches or Medicube PDRN Caffeine/Collagen Eye Patches — deciding based on Ordinary Caffeine serum results</div></div></div>
+
+  <div class="section-title">Travel kit</div>
+  <div class="product-row"><div class="prod-dot dot-travel"></div><div><div class="prod-name">Belif Milky Toner</div><div class="prod-role">Hydrating toner</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-travel"></div><div><div class="prod-name">Good Molecules HA Serum</div><div class="prod-role">Hydration serum</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-travel"></div><div><div class="prod-name">The Ordinary Azelaic Acid Suspension</div><div class="prod-role">Brightening treatment</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-travel"></div><div><div class="prod-name">Belif Aqua Bomb Frozen Cream</div><div class="prod-role">Moisturizer</div></div></div>
+
+  <div class="section-title">Retired products</div>
+  <div class="product-row"><div class="prod-dot dot-retire"></div><div><div class="prod-name">9Wishes Rice Foaming Cleanser</div><div class="prod-role">Finish then retire — overlapped by Kale</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-retire"></div><div><div class="prod-name">Round Lab 1025 Dokdo Toner</div><div class="prod-role">Covered by Byoma + Skin Drip</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-retire"></div><div><div class="prod-name">Naturium Multi-Peptide Serum</div><div class="prod-role">Finish then retire — covered by Clarins</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-retire"></div><div><div class="prod-name">VT Reedle Shot 300</div><div class="prod-role">Finish then retire — 100 is sufficient</div></div></div>
+  <div class="product-row"><div class="prod-dot dot-retire"></div><div><div class="prod-name">Burt's Bees Nightly Lip Treatment</div><div class="prod-role">Overlapped by Naturium Overnight</div></div></div>
+</div>
+
+<!-- Warnings -->
+<div id="warnings" class="section">
+  <div class="section-title">Master warnings — quick reference</div>
+  <table class="master-warn-table">
+    <tr><td>Topicals Faded</td><td>Never with AHAs, BHAs, or retinoids same session</td></tr>
+    <tr><td>Glycolic Toner</td><td>Never same night as tretinoin · never same session as Topicals Faded · SPF next morning critical</td></tr>
+    <tr><td>Tretinoin</td><td>Always applied over moisturizer · pea-sized amount · avoid eyelids, lip corners, nose sides</td></tr>
+    <tr><td>Reedle 100 + 300</td><td>Never same night — always alternate</td></tr>
+    <tr><td>Reedle 300</td><td>Never on spa day</td></tr>
+    <tr><td>SPF</td><td>Reapply every 2 hours outdoors · non-negotiable daily</td></tr>
+    <tr><td>Eye area</td><td>Ring finger only · always tap, never rub or pull</td></tr>
+    <tr><td>Caffeine serum</td><td>Keep in fridge for best de-puffing results</td></tr>
+    <tr><td>Clindamycin</td><td>Apply to fully dry skin · allow full absorption before next step</td></tr>
+    <tr><td>Clarins Serum</td><td>Always mix both phases in palm before applying · dry skin only</td></tr>
+  </table>
+</div>
+
+<script>
+function show(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>
