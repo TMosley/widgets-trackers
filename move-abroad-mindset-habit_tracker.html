@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Habit Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f0f4f8;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 960px;
+  }
+
+  h1 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a3a5c;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h1 span {
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: #1a3a5c;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  .tracker {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(26,58,92,0.10);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    background: #1a4a7a;
+  }
+
+  th {
+    padding: 14px 10px;
+    text-align: center;
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.4;
+    border-right: 1px solid rgba(255,255,255,0.1);
+  }
+
+  th:first-child {
+    text-align: left;
+    padding-left: 20px;
+    width: 110px;
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+
+  th:last-child { border-right: none; }
+
+  tbody tr {
+    border-bottom: 1px solid #e8eef5;
+    transition: background 0.15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody tr:nth-child(even) { background: #f7fafd; }
+  tbody tr:nth-child(odd) { background: white; }
+
+  tbody tr:hover { background: #eef4fb; }
+
+  td {
+    padding: 14px 10px;
+    text-align: center;
+    border-right: 1px solid #e8eef5;
+    vertical-align: middle;
+  }
+
+  td:last-child { border-right: none; }
+
+  td:first-child {
+    text-align: left;
+    padding-left: 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1a4a7a;
+    border-right: 1px solid #d0dce8;
+    white-space: nowrap;
+  }
+
+  /* Custom checkbox */
+  .check-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #c5d5e8;
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.18s ease;
+  }
+
+  input[type="checkbox"]:hover {
+    border-color: #1a4a7a;
+    background: #eef4fb;
+  }
+
+  input[type="checkbox"]:checked {
+    background: #1a4a7a;
+    border-color: #1a4a7a;
+  }
+
+  input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 8px;
+    height: 12px;
+    border: 2.5px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+
+  /* Progress bar */
+  .progress-section {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .progress-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #1a3a5c;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .progress-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: #dce8f5;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #1a4a7a, #3a82c4);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-pct {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #1a4a7a;
+    min-width: 36px;
+    text-align: right;
+  }
+
+  .reset-btn {
+    margin-top: 14px;
+    background: none;
+    border: 1.5px solid #c5d5e8;
+    color: #1a4a7a;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 6px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .reset-btn:hover {
+    background: #1a4a7a;
+    color: white;
+    border-color: #1a4a7a;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Weekly Habit Tracker <span id="week-label"></span></h1>
+
+  <div class="tracker">
+    <table id="tracker-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Morning Meditation<br>10–15 min</th>
+          <th>Affirmations 3x<br>Morning/Noon/Night</th>
+          <th>Visualization<br>Every morning</th>
+          <th>Watch Expanders<br>Expat content daily</th>
+          <th>Walk New Identity<br>Dress &amp; act abroad</th>
+        </tr>
+      </thead>
+      <tbody id="tracker-body"></tbody>
+    </table>
+  </div>
+
+  <div class="progress-section">
+    <span class="progress-label">Week Progress</span>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <span class="progress-pct" id="progress-pct">0%</span>
+  </div>
+
+  <button class="reset-btn" onclick="resetAll()">Reset Week</button>
+</div>
+
+<script>
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const habits = [
+    'Morning Meditation',
+    'Affirmations 3x',
+    'Visualization',
+    'Watch Expanders',
+    'Walk New Identity'
+  ];
+
+  const STORAGE_KEY = 'habit_tracker_v1';
+
+  function getWeekLabel() {
+    const now = new Date();
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    const mon = new Date(now.setDate(diff));
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    const fmt = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    return `${fmt(mon)} – ${fmt(sun)}`;
+  }
+
+  document.getElementById('week-label').textContent = getWeekLabel();
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch { return {}; }
+  }
+
+  function saveState(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function buildTable() {
+    const state = loadState();
+    const tbody = document.getElementById('tracker-body');
+    tbody.innerHTML = '';
+
+    days.forEach(day => {
+      const tr = document.createElement('tr');
+      const tdDay = document.createElement('td');
+      tdDay.textContent = day;
+      tr.appendChild(tdDay);
+
+      habits.forEach(habit => {
+        const td = document.createElement('td');
+        const wrap = document.createElement('div');
+        wrap.className = 'check-wrap';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        const key = `${day}_${habit}`;
+        cb.checked = !!state[key];
+        cb.addEventListener('change', () => {
+          const s = loadState();
+          s[key] = cb.checked;
+          saveState(s);
+          updateProgress();
+        });
+        wrap.appendChild(cb);
+        td.appendChild(wrap);
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const total = checkboxes.length;
+    const checked = [...checkboxes].filter(c => c.checked).length;
+    const pct = total ? Math.round((checked / total) * 100) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all checkboxes for this week?')) return;
+    saveState({});
+    buildTable();
+  }
+
+  buildTable();
+</script>
+</body>
+</html>
