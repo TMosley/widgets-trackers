@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Symptom & Energy Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a3a5c;
+    --navy-mid: #1a4a7a;
+    --navy-light: #2d6aa0;
+    --accent: #e8a838;
+    --accent-soft: #fdf3e0;
+    --bg: #f2f6fb;
+    --white: #ffffff;
+    --border: #dce8f5;
+    --text: #1a2e42;
+    --muted: #7a96b0;
+    --row-even: #f7fafd;
+    --check-green: #2e9e6b;
+    --check-green-bg: #e6f7f1;
+    --scale-1: #e05c5c;
+    --scale-2: #e08a3c;
+    --scale-3: #e8c838;
+    --scale-4: #7ac74f;
+    --scale-5: #2e9e6b;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 28px 16px 48px;
+  }
+
+  .page-header {
+    max-width: 1020px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .page-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .page-title em {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: var(--muted);
+    letter-spacing: 0;
+    text-transform: none;
+    margin-left: 8px;
+  }
+
+  .week-range {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--white);
+    background: var(--navy-mid);
+    padding: 5px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+
+  .tracker-wrap {
+    max-width: 1020px;
+    margin: 0 auto;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 6px 32px rgba(26,58,92,0.10);
+    overflow: hidden;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 12px 20px;
+    background: #f0f6ff;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .legend-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  /* Column groups */
+  .col-day { width: 90px; }
+
+  thead tr {
+    background: var(--navy);
+  }
+
+  th {
+    padding: 13px 8px;
+    text-align: center;
+    color: rgba(255,255,255,0.92);
+    font-size: 0.67rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.45;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    vertical-align: bottom;
+  }
+
+  th:first-child {
+    text-align: left;
+    padding-left: 18px;
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+
+  th:last-child { border-right: none; }
+
+  /* Section divider headers */
+  .th-section {
+    background: #15304d;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 5px 8px;
+  }
+
+  .th-section:first-child { padding-left: 18px; text-align: left; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:nth-child(odd) { background: var(--white); }
+  tbody tr:nth-child(even) { background: var(--row-even); }
+  tbody tr:hover { background: #eaf2fc; }
+
+  td {
+    padding: 12px 8px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  td:last-child { border-right: none; }
+
+  td.day-cell {
+    text-align: left;
+    padding-left: 18px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--navy-mid);
+    border-right: 1px solid #c8daea;
+    white-space: nowrap;
+  }
+
+  td.day-cell .date-sub {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  /* Symptom checkbox */
+  .check-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #c5d5e8;
+    border-radius: 5px;
+    background: var(--white);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.16s ease;
+    flex-shrink: 0;
+  }
+
+  input[type="checkbox"]:hover { border-color: var(--navy-mid); background: #eef4fb; }
+
+  input[type="checkbox"]:checked {
+    background: var(--check-green);
+    border-color: var(--check-green);
+  }
+
+  input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 7px;
+    height: 11px;
+    border: 2.5px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+
+  /* Scale buttons */
+  .scale-wrap {
+    display: flex;
+    gap: 3px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .scale-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #d0dce8;
+    background: var(--white);
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Sora', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .scale-btn:hover { transform: scale(1.15); border-color: var(--navy-light); }
+
+  .scale-btn.active-1 { background: var(--scale-1); border-color: var(--scale-1); color: white; }
+  .scale-btn.active-2 { background: var(--scale-2); border-color: var(--scale-2); color: white; }
+  .scale-btn.active-3 { background: var(--scale-3); border-color: var(--scale-3); color: #333; }
+  .scale-btn.active-4 { background: var(--scale-4); border-color: var(--scale-4); color: white; }
+  .scale-btn.active-5 { background: var(--scale-5); border-color: var(--scale-5); color: white; }
+
+  /* Notes cell */
+  td.notes-cell { padding: 8px; min-width: 130px; }
+
+  textarea.notes-input {
+    width: 100%;
+    min-height: 46px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.68rem;
+    color: var(--text);
+    padding: 6px 8px;
+    resize: vertical;
+    background: #f7fafd;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  textarea.notes-input:focus {
+    border-color: var(--navy-light);
+    background: white;
+  }
+
+  textarea.notes-input::placeholder { color: #b0c4d8; }
+
+  /* Section divider row */
+  tr.section-divider td {
+    background: #15304d;
+    color: var(--accent);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 18px;
+    text-align: left;
+    border: none;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    max-width: 1020px;
+    margin: 16px auto 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .progress-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .progress-bar-bg {
+    flex: 1;
+    min-width: 120px;
+    height: 7px;
+    background: #dce8f5;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--navy-mid), var(--accent));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-pct {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--navy);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  .reset-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--navy);
+    font-family: 'Sora', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 6px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .reset-btn:hover { background: var(--navy); color: white; border-color: var(--navy); }
+
+  /* Section border highlight */
+  td.section-end { border-right: 2px solid #c8daea !important; }
+  th.section-end { border-right: 2px solid rgba(255,255,255,0.2) !important; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">Symptom &amp; Energy Tracker <em>7-day log</em></div>
+  <div class="week-range" id="week-range"></div>
+</div>
+
+<div class="tracker-wrap">
+  <div class="legend">
+    <span class="legend-label">Energy Scale:</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#e05c5c"></span>1 – Very Low</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#e08a3c"></span>2 – Low</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#e8c838"></span>3 – Moderate</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#7ac74f"></span>4 – Good</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#2e9e6b"></span>5 – Great</span>
+    <span class="legend-item" style="margin-left:8px"><span style="display:inline-block;width:16px;height:16px;background:#2e9e6b;border-radius:4px;margin-right:4px;vertical-align:middle"></span>Symptom present</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="col-day"></th>
+        <!-- Symptoms -->
+        <th>Brain<br>Fog</th>
+        <th>Fatigue</th>
+        <th>Headache</th>
+        <th>Gassiness<br>&amp; Bloat</th>
+        <th class="section-end">Digestion /<br>Constipation</th>
+        <!-- Scale -->
+        <th>Appetite<br><span style="font-weight:400;opacity:0.7;font-size:0.6rem">(1–5)</span></th>
+        <th>Mood<br><span style="font-weight:400;opacity:0.7;font-size:0.6rem">(1–5)</span></th>
+        <th>Sleep<br><span style="font-weight:400;opacity:0.7;font-size:0.6rem">(1–5)</span></th>
+        <th class="section-end">Energy<br><span style="font-weight:400;opacity:0.7;font-size:0.6rem">(1–5)</span></th>
+        <!-- Notes -->
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody id="tracker-body"></tbody>
+  </table>
+</div>
+
+<div class="bottom-bar">
+  <span class="progress-label">Symptoms logged</span>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+  <span class="progress-pct" id="progress-pct">0%</span>
+  <button class="reset-btn" onclick="resetAll()">Reset Week</button>
+</div>
+
+<script>
+  const STORAGE_KEY = 'symptom_tracker_v1';
+
+  const SYMPTOMS = ['brain_fog','fatigue','headache','gassiness','digestion'];
+  const SCALES   = ['appetite','mood','sleep','energy'];
+
+  function getWeekDays() {
+    const today = new Date();
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  }
+
+  function formatDay(d) {
+    return d.toLocaleDateString('en-US', { weekday: 'long' });
+  }
+
+  function formatDate(d) {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function setWeekRange(days) {
+    const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    document.getElementById('week-range').textContent =
+      `${fmt(days[0])} – ${fmt(days[6])}`;
+  }
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch { return {}; }
+  }
+
+  function saveState(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+  function buildTable() {
+    const days = getWeekDays();
+    setWeekRange(days);
+    const state = loadState();
+    const tbody = document.getElementById('tracker-body');
+    tbody.innerHTML = '';
+
+    days.forEach(day => {
+      const dayKey = formatDate(day).replace(' ', '_');
+      const tr = document.createElement('tr');
+
+      // Day cell
+      const tdDay = document.createElement('td');
+      tdDay.className = 'day-cell';
+      tdDay.innerHTML = `${formatDay(day)}<span class="date-sub">${formatDate(day)}</span>`;
+      tr.appendChild(tdDay);
+
+      // Symptom checkboxes
+      SYMPTOMS.forEach((sym, i) => {
+        const td = document.createElement('td');
+        if (i === SYMPTOMS.length - 1) td.classList.add('section-end');
+        const wrap = document.createElement('div');
+        wrap.className = 'check-wrap';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        const key = `${dayKey}_${sym}`;
+        cb.checked = !!state[key];
+        cb.addEventListener('change', () => {
+          const s = loadState(); s[key] = cb.checked; saveState(s); updateProgress();
+        });
+        wrap.appendChild(cb);
+        td.appendChild(wrap);
+        tr.appendChild(td);
+      });
+
+      // Scale selectors
+      SCALES.forEach((scale, i) => {
+        const td = document.createElement('td');
+        if (i === SCALES.length - 1) td.classList.add('section-end');
+        const wrap = document.createElement('div');
+        wrap.className = 'scale-wrap';
+        const key = `${dayKey}_${scale}`;
+        const currentVal = state[key] || 0;
+
+        for (let v = 1; v <= 5; v++) {
+          const btn = document.createElement('button');
+          btn.className = 'scale-btn' + (currentVal === v ? ` active-${v}` : '');
+          btn.textContent = v;
+          btn.addEventListener('click', () => {
+            const s = loadState();
+            const prev = s[key] || 0;
+            s[key] = (prev === v) ? 0 : v; // toggle off if same
+            saveState(s);
+            // update button states
+            wrap.querySelectorAll('.scale-btn').forEach((b, idx) => {
+              b.className = 'scale-btn' + (s[key] === idx + 1 ? ` active-${idx + 1}` : '');
+            });
+            updateProgress();
+          });
+          wrap.appendChild(btn);
+        }
+        td.appendChild(wrap);
+        tr.appendChild(td);
+      });
+
+      // Notes
+      const tdNotes = document.createElement('td');
+      tdNotes.className = 'notes-cell';
+      const ta = document.createElement('textarea');
+      ta.className = 'notes-input';
+      ta.placeholder = 'Add notes…';
+      const notesKey = `${dayKey}_notes`;
+      ta.value = state[notesKey] || '';
+      ta.addEventListener('input', () => {
+        const s = loadState(); s[notesKey] = ta.value; saveState(s);
+      });
+      tdNotes.appendChild(ta);
+      tr.appendChild(tdNotes);
+
+      tbody.appendChild(tr);
+    });
+
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const scaleBtns = document.querySelectorAll('.scale-btn');
+    const notes = document.querySelectorAll('textarea.notes-input');
+
+    let total = checkboxes.length + 7; // 7 days × at least 1 scale logged counts as filled
+    let filled = [...checkboxes].filter(c => c.checked).length;
+
+    // count days where at least one scale is set
+    const state = loadState();
+    const days = getWeekDays();
+    days.forEach(day => {
+      const dayKey = formatDate(day).replace(' ', '_');
+      const hasScale = SCALES.some(s => (state[`${dayKey}_${s}`] || 0) > 0);
+      if (hasScale) filled++;
+    });
+
+    const pct = Math.round((filled / total) * 100);
+    document.getElementById('progress-fill').style.width = Math.min(pct, 100) + '%';
+    document.getElementById('progress-pct').textContent = Math.min(pct, 100) + '%';
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all entries for this week?')) return;
+    saveState({});
+    buildTable();
+  }
+
+  buildTable();
+</script>
+</body>
+</html>
