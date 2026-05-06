@@ -436,11 +436,8 @@
   function getWeekDays() {
     // Lock the start date on first load so entries persist across days
     const START_KEY = 'symptom_tracker_start_v1';
-    let startStr = localStorage.getItem(START_KEY);
-    if (!startStr || startStr < '2026-05-04') {
-      startStr = '2026-05-04';
-      localStorage.setItem(START_KEY, startStr);
-    }
+    const startStr = '2026-05-04';
+    localStorage.setItem(START_KEY, startStr);
     const start = new Date(startStr + 'T00:00:00');
     const days = [];
     for (let i = 0; i < 7; i++) {
@@ -580,9 +577,8 @@
   }
 
   function resetAll() {
-    if (!confirm('Reset all entries and start a new 7-day window from today?')) return;
+    if (!confirm('Reset all entries for May 4–10?')) return;
     saveState({});
-    localStorage.removeItem('symptom_tracker_start_v1');
     buildTable();
   }
 
